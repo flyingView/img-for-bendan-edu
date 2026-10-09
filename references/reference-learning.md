@@ -3,12 +3,12 @@
 The goal is a useful visual reference set of P papers. Keep the priority order in the main workflow; use these lightweight search cues:
 
 1. Combine the narrow research topic, its main synonyms and the intended figure type. Start with representative citations already in the manuscript; use a field-appropriate scholarly source and follow relevant references or citing papers.
-2. Screen relevance from title/abstract, then assess the actual paper and figure. Keep the search date, useful queries and selection reason in a short `references/search-log.md`.
-3. Check title, authors, publication date and DOI/arXiv identity against the source page and PDF. Merge duplicate hits and preprint/published versions of the same work. A registered DOI alone does not verify content.
+2. Screen relevance from title/abstract, then assess the actual paper and figure. Keep the search date and useful queries in a short note in `style-study.md`.
+3. Check title, authors, publication date and DOI/arXiv identity against the source page and PDF. Count preprint/published versions of the same work once.
 4. Interpret recent as the rolling last three calendar months, including the latest month. Explain why a paper is classic or high quality; use topic fit and figure usefulness rather than citation count alone.
-5. Prefer publisher, proceedings, institutional or author-hosted PDFs. If access fails, seek an accessible version or a suitable replacement at the same priority before broadening the topic.
+5. Prefer publisher, proceedings, institutional or author-hosted PDFs. If access fails, seek an accessible version or a suitable replacement. Fill remaining places by moving down the stated priority order.
 
-Save each paper under `references/P01/`, `P02/`, and onward. Record identity, selection reason, source URL, local PDF, page/figure IDs and inspected figure paths in `references/papers.csv`. Keep at least one meaningful visual lesson per paper in `references/study-notes.md`.
+Save each paper under `references/P01/`, `P02/`, and onward. Use `references/papers.csv` for identity, selection reason, source URL, local PDF, extracted figures and one meaningful visual lesson per paper. Keep page/figure IDs and captions beside each crop; the helper records coordinates and page provenance automatically.
 
 ## Extract complete figures
 

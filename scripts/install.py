@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import io
+import os
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -73,6 +75,9 @@ def install(skills_root: Path, payload: dict[str, bytes]) -> tuple[Path, bool]:
 
 
 def build_package(output: Path, payload: dict[str, bytes]) -> tuple[Path, bool]:
+    output = output.expanduser().resolve()
+    if output.suffix.lower() != ".zip":
+        raise ValueError("The package output must use a .zip extension.")
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name, content in sorted(payload.items()):
@@ -81,15 +86,21 @@ def build_package(output: Path, payload: dict[str, bytes]) -> tuple[Path, bool]:
             entry.create_system = 3
             entry.external_attr = 0o100644 << 16
             archive.writestr(entry, content)
-    output = output.expanduser().resolve()
     content = buffer.getvalue()
-    if output.exists():
-        if output.is_file() and output.read_bytes() == content:
-            return output, False
-        raise FileExistsError(f"A different package already exists: {output}")
+    if output.is_file() and output.read_bytes() == content:
+        return output, False
     output.parent.mkdir(parents=True, exist_ok=True)
-    with output.open("xb") as stream:
-        stream.write(content)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            dir=output.parent, prefix=f".{output.name}.", suffix=".tmp", delete=False,
+        ) as stream:
+            temporary = Path(stream.name)
+            stream.write(content)
+        os.replace(temporary, output)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
     return output, True
 
 
@@ -98,7 +109,7 @@ def main() -> None:
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--agent", choices=tuple(PROFILES), help="Install for one host")
     action.add_argument("--dest", type=Path, help="Custom parent skills directory")
-    action.add_argument("--package", type=Path, help="Create an importable ZIP file")
+    action.add_argument("--package", type=Path, help="Build or refresh an importable .zip file")
     action.add_argument("--list", action="store_true", help="Show supported profiles")
     parser.add_argument("--project", type=Path, help="Existing project for a project-scoped installation")
     args = parser.parse_args()

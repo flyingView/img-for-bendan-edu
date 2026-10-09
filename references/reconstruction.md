@@ -9,7 +9,7 @@ Break the last generated draft into panels, labels, shapes, arrows, plots and ge
 | Freely editable composite layouts | PowerPoint, Illustrator or Inkscape |
 | Spatial geometry or scientific structures | Blender or a field-specific application |
 
-Use the simplest available combination. Record it in `redraw/plan.md`; test a representative panel before rebuilding the whole figure. Preserve the final draft's composition, proportions, hierarchy and color meanings, correcting its scientific errors and generation artifacts.
+Record the choice in `redraw/plan.md` using the [redraw template](../assets/templates/redraw-plan.md). Trial a representative panel when tool suitability is uncertain. Preserve the final draft's composition, proportions, hierarchy and color meanings while correcting its errors.
 
 ## A few implementation cues
 
@@ -18,10 +18,8 @@ Use the simplest available combination. Record it in `redraw/plan.md`; test a re
 - Plot real values, units, uncertainty and missing observations accurately. Check that axis ranges and shared color scales preserve the intended comparisons.
 - Verify physical output size after export. Cropping may change dimensions; editable text depends on font availability. Keep editable source even if delivery requires outlined fonts.
 
-Build actual vector objects, text, data-driven plots or a reproducible scene. AI-generated drafts are visual references only and must not appear as final image layers. Automatic bitmap tracing or embedding a generated image does not satisfy reconstruction. Real research images retain their source and processing record.
+Build actual vector objects, text, data-driven plots or a reproducible scene. For real research images, retain their source and processing record.
 
 Save source/code and used data under `redraw/` and `data/`. Export an appropriate manuscript format plus a PNG preview under `final/`, with caption/insertion and reproduction instructions. Choose actual dimensions and resolution for the target publication; verify publisher rules when a specific venue is named.
 
-Open the delivered files at manuscript size. Check scientific meaning, all six figure expression rules, fonts, legend, clipping and layout. Compare with the last draft, then re-export from saved source. Record the result in `delivery.md`.
-
-For later local edits, revise the saved source and append a new final version. Restart earlier stages only for a change in the scientific message or figure purpose.
+Open the delivered files at manuscript size. Check scientific meaning, the six figure expression rules, fonts, legend, clipping and layout. Compare with the last draft, then re-export from saved source. Record the result in `delivery.md` using the [delivery template](../assets/templates/delivery.md).

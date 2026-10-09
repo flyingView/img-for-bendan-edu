@@ -1,7 +1,8 @@
-# Initial style study
+# Style study and current decisions
 
 - Selected P / actual papers inspected:
-- Paper list, study notes and reference-index paths:
+- Search date and useful queries:
+- Paper list with visual lessons and reference-index paths:
 
 | Observed feature | Reference figure IDs and evidence | Why it helps this figure | Concrete application |
 | --- | --- | --- | --- |
@@ -15,3 +16,4 @@
 - Legend, alignment and spacing:
 - Application of the six figure expression rules:
 - Relevant exceptions or features not adopted:
+- Refined decisions with the review IDs that support them:

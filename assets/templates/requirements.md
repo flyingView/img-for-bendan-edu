@@ -2,7 +2,7 @@
 
 - Original user prompt:
 - Mode and manuscript version/path:
-- Selected paper count P / refinement rounds R / selection source:
+- Selected paper count P / refinement rounds R:
 - Actual reading scope and research subfield:
 - One-sentence figure message:
 - Insertion anchor and reason:

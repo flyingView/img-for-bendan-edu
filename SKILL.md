@@ -1,28 +1,27 @@
 ---
 name: img-for-bendan-edu
-description: Create scientific paper figures from a specific figure brief or by reading a manuscript and selecting useful illustration positions. Learn from reference-paper figures, compare and refine generated drafts, then rebuild the final figure with editable code or drawing software. Ask for paper count and refinement rounds at intake; recommend 20 papers and 5 rounds.
+description: Create scientific figures from a figure brief or by reading a manuscript to select useful illustration positions. Learn from reference papers, refine generated drafts, then rebuild an editable final with code or drawing software.
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
   language: "en"
 ---
 
 # Academic Figure Studio
 
-Learn from strong examples, make each comparison improve the next draft, and deliver an editable software reconstruction. Follow the author's workflow below; use the host agent's judgment and available tools for implementation.
+Learn from strong paper figures, refine through comparison, then deliver an editable software reconstruction.
 
-## First action: ask for the two parameters
+For an existing `imgN` task, read its saved state and resume at the unfinished stage. For local changes to a completed figure, edit its software source directly.
 
-In the user's language, ask one short question as soon as this skill is invoked:
+## New tasks: ask for the two parameters
+
+For a new drawing task, ask in the user's language as soon as this skill is invoked. Use values already given; ask only for missing values. Resumed tasks retain their recorded settings.
 
 > How many reference papers and refinement rounds would you like? Recommended and default: **20 papers, 5 rounds**. You can reply with two numbers, such as **12 papers, 3 rounds**.
 
-- `paper_count = P`: positive integer; default **20**.
-- `refinement_rounds = R`: nonnegative integer; default **5**.
-- Produce **R + 1 generated drafts** and **R review records**, then reconstruct the final draft with software. If R is 0, reconstruct after draft 1.
-- Use values already specified in the request; ask only for missing values. On a resumed task, retain its recorded values unless the user changes them.
-- Prefer the host's question tool. If it supports a nonblocking question, continue locating and reading the manuscript while the user considers it. Allow a reasonable reply window (about one minute) before applying defaults to unanswered fields. A skipped or empty answer uses defaults. With text-only interaction, ask once, state the defaults, and proceed with manuscript reading before settling unanswered fields. Do not repeatedly ask or wait indefinitely.
-- Record the selected values and whether they came from the user or defaults. A later answer updates pending work without discarding completed artifacts.
+- `paper_count = P` is a positive integer; `refinement_rounds = R` is a nonnegative integer. Produce **R + 1 generated drafts** and **R review records**. R=0 goes directly from draft 1 to reconstruction.
+- Use the host's question tool when available. With asynchronous input, read the manuscript while allowing about a minute for a reply. For skipped or unanswered fields, announce the defaults and continue. In text-only interaction, ask once and state the defaults before continuing manuscript reading.
+- Record P/R in `task.json`. Apply later answers to pending work while keeping completed artifacts.
 
 ## Figure expression rules
 
@@ -49,7 +48,7 @@ python scripts/init_task.py --project "/path/to/paper" --mode single --papers 20
 
 Use `--mode manuscript` for whole-paper work. If Python is unavailable, create the same files directly. See [artifacts](references/artifacts.md) for names and resumption.
 
-Use the host's search, PDF, vision, image-generation and drawing tools. No particular model, API provider, MCP server or extra skill is required by name. If a required capability is absent, finish independent work and identify the exact missing capability rather than claiming the stage completed.
+Use the host's available search, PDF, vision, image-generation and drawing tools; no particular provider or extra skill is required. If a capability is missing, finish independent work and report the stage reached and what is needed next.
 
 ## 2. Understand the manuscript and original request
 
@@ -67,13 +66,13 @@ Read the short [reference-learning guide](references/reference-learning.md). Kee
 2. High-quality papers in that topic from the most recent 1-3 months.
 3. Classic papers in the same field but other narrow topics.
 
-Download accessible PDFs, verify their identities, and select at least one relevant complete figure from each. Keep page numbers, figure IDs, captions and source links. Inspect the figures themselves and record one useful observation per paper in `references/study-notes.md`; keep a labeled visual index for comparisons.
+Download accessible PDFs, verify their identities, and inspect at least one relevant complete figure from each. Keep the source and one useful visual lesson per paper in `references/papers.csv`, with page/figure IDs and captions beside the extracted figures. Build a labeled visual index for comparisons.
 
 **Done when:** P distinct research works have local PDFs, inspected figures and usable notes. Report any shortfall and resolve access or selection before treating this stage as complete.
 
 ## 4. Turn observations into a style plan
 
-Write `style-study.md`: **reference evidence → useful feature → application to this figure**. Separate information structure from visual styling. Define a small consistent set of layout, label, line, arrow, legend and color choices. Distinguish observed conventions from verified publisher requirements.
+Write `style-study.md`: **reference evidence → useful feature → application to this figure**. Separate information structure from visual styling and define consistent layout, label, line, legend and color choices. Keep this as the current style plan throughout refinement; distinguish observed conventions from publisher requirements.
 
 **Done when:** the plan can guide actual drawing and its main decisions point to reference figures. Use the [style template](assets/templates/style-study.md).
 
@@ -88,11 +87,11 @@ Record the actual tool and available model information. Keep scientific relation
 Read [iteration review](references/iteration-review.md). For **n = 1 through R**:
 
 1. Inspect draft n alongside the complete reference index, enlarging the most relevant examples. Check the preceding review's requested changes.
-2. Write `review-{n:02d}.md`: what looks weaker than the examples, what feels unlike a paper figure in this field, observable AI-looking artifacts, missed lessons, and specific improvements. Anchor each issue to a location and reference; do not invent faults.
-3. Save the next prompt and generate draft n+1. Inspect it for both the intended improvement and any scientific drift.
-4. Save the result, add new lessons to `style-updates.md`, and update `task.json`.
+2. Write `review-{n:02d}.md` using the guide's five questions. Connect visible differences to specific edits and preserve what already works.
+3. Save the next prompt and generate draft n+1. Pass draft n as the image-edit input when supported, otherwise use it as a visual reference. Inspect the result for intended improvements and scientific drift.
+4. Fold useful new lessons into `style-study.md` and update `task.json`; each review retains the reasoning behind its changes.
 
-**Done when:** there are R real reviews and R+1 real generated drafts with prompts. Stop generation at the selected count; carry remaining issues into reconstruction. Defaults give reviews 1-5 and drafts 1-6.
+**Done when:** there are R real reviews and R+1 real generated drafts with prompts. Stop generation at the selected count; carry remaining issues into reconstruction.
 
 ## 7. Reconstruct with code or drawing software
 
@@ -100,12 +99,10 @@ Read [reconstruction](references/reconstruction.md). Analyze the latest draft an
 
 Aim for near 1:1 visual fidelity while correcting scientific or generated errors. The final must contain **no AI-generated image layers**: embedding, automatic bitmap tracing, upscaling or format-converting the draft is not software reconstruction. Genuine research images may be used with their sources and processing records.
 
-Open the exported final at manuscript size, check the figure and legend, and export once again from the saved source to verify reproducibility.
-
-**Done when:** the final is scientifically correct, follows the expression rules, has editable source, and can be exported from that source.
+**Done when:** the final passes inspection at manuscript size, follows the expression rules, is scientifically correct, and has editable source verified by re-exporting it.
 
 ## 8. Deliver and continue from feedback
 
 Deliver the final preview, manuscript-ready format, editable source/code, reproduction steps, caption and insertion position in `delivery.md`. If insertion was requested and the manuscript is editable, insert the figure and verify caption, references and layout.
 
-Wait for user feedback. Save later revisions within the same `imgN/`; edit the reconstructed source for local changes. Return to an earlier stage only when the scientific content or figure purpose changes.
+Wait for user feedback and save later revisions within the same `imgN/`. Revisit earlier stages when the scientific content or figure purpose changes.

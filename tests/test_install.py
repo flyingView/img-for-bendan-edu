@@ -5,6 +5,7 @@ import subprocess
 import sys
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from test_helpers import IsolatedCase, load_script
 
@@ -85,6 +86,25 @@ class InstallTests(IsolatedCase):
                 self.assertEqual(archive.read(prefix + name), content)
         before = output.read_bytes()
         changed = dict(self.payload, **{"SKILL.md": b"Different skill"})
-        with self.assertRaises(FileExistsError):
-            installer.build_package(output, changed)
+        self.assertTrue(installer.build_package(output, changed)[1])
+        self.assertNotEqual(output.read_bytes(), before)
+        with zipfile.ZipFile(output) as archive:
+            self.assertEqual(archive.read(prefix + "SKILL.md"), b"Different skill")
+
+    def test_failed_zip_replacement_preserves_previous_build(self):
+        output = self.directory / "skill.zip"
+        installer.build_package(output, self.payload)
+        before = output.read_bytes()
+        changed = dict(self.payload, **{"SKILL.md": b"Different skill"})
+        with patch.object(installer.os, "replace", side_effect=OSError("Replacement failed")):
+            with self.assertRaises(OSError):
+                installer.build_package(output, changed)
         self.assertEqual(output.read_bytes(), before)
+        self.assertEqual(list(self.directory.iterdir()), [output])
+
+    def test_package_rejects_non_zip_output_without_touching_it(self):
+        output = self.directory / "manuscript.md"
+        output.write_text("Keep this manuscript.", encoding="utf-8")
+        with self.assertRaises(ValueError):
+            installer.build_package(output, self.payload)
+        self.assertEqual(output.read_text(encoding="utf-8"), "Keep this manuscript.")

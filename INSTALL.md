@@ -44,10 +44,12 @@ This also supports an existing Codex setup that uses `~/.codex/skills`; choose i
 python scripts/install.py --package "dist/img-for-bendan-edu.zip"
 ```
 
+Re-running the command refreshes that ZIP after source changes; identical contents leave it unchanged. The new build replaces the previous ZIP only after it has been written successfully.
+
 The ZIP contains one `img-for-bendan-edu/` folder with `SKILL.md` at its root. Import the complete bundle in hosts with a local skill importer, or extract that folder into the documented skills root. Qoder desktop provides a [ZIP import](https://docs.qoder.com/qoder/skills); Qwen Work accepts the skill and its supporting files through its Skills UI. Preserve the whole directory, not only `SKILL.md`.
 
 ## Runtime capabilities
 
 The workflow uses the host's literature search, PDF reading, vision, image generation and local code/drawing capabilities. Discover their actual names at runtime. Python helpers are optional; PDF helpers need `python -m pip install -r requirements.txt` in a suitable environment. Normal host permissions still apply.
 
-Install verification should be a discovery check, not an automatic full drawing run. When the user starts a drawing task, the skill asks for paper count and refinement rounds, recommending 20 and 5. It can be invoked by its name in natural language; host-specific slash or dollar syntax is optional.
+Verify installation by checking host discovery. Invoke the skill by its name in natural language; host-specific slash or dollar syntax is optional.

@@ -70,8 +70,6 @@ class InitTaskTests(IsolatedCase):
                 self.assertEqual(state["paper_count"], expected_p)
                 self.assertEqual(state["refinement_rounds"], expected_r)
                 self.assertEqual(state["expected_versions"], versions)
-                self.assertEqual(state["parameter_sources"]["paper_count"],
-                                 "default" if papers is None else "argument")
                 self.assertEqual(state["completed_reviews"], [])
                 self.assertTrue((task / "references/papers.csv").is_file())
 

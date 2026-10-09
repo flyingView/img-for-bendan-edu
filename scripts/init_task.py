@@ -15,10 +15,8 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 DEFAULTS = json.loads((SKILL_ROOT / "assets/defaults.json").read_text(encoding="utf-8"))
 TASK_FOLDER = DEFAULTS["task_root"]
 REFERENCE_FIELDS = [
-    "paper_id", "title", "authors", "year", "published_date", "version_date",
-    "priority", "selection_evidence", "doi_or_id", "landing_url", "pdf_url",
-    "downloaded_at", "pdf_path", "pdf_sha256", "figure_ids", "figure_paths",
-    "visually_checked", "notes",
+    "paper_id", "title", "published_date", "doi_or_id", "priority",
+    "selection_reason", "source_url", "pdf_path", "figure_paths", "visual_lesson",
 ]
 
 
@@ -71,10 +69,6 @@ def create_task(
         "paper_count": papers,
         "refinement_rounds": rounds,
         "expected_versions": rounds + 1,
-        "parameter_sources": {
-            "paper_count": "default" if paper_count is None else "argument",
-            "refinement_rounds": "default" if refinement_rounds is None else "argument",
-        },
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "stage": "requirements",
         "reference_papers_verified": 0,
@@ -110,8 +104,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", required=True, type=Path, help="Existing paper project directory")
     parser.add_argument("--mode", choices=("single", "manuscript"), default="single")
-    parser.add_argument("--papers", type=int, help="Reference paper count (default: 20)")
-    parser.add_argument("--rounds", type=int, help="Refinement rounds (default: 5)")
+    parser.add_argument("--papers", type=int,
+                        help=f"Reference paper count (default: {DEFAULTS['paper_count']})")
+    parser.add_argument("--rounds", type=int,
+                        help=f"Refinement rounds (default: {DEFAULTS['refinement_rounds']})")
     args = parser.parse_args()
     try:
         target = create_task(args.project, args.mode, args.papers, args.rounds)
