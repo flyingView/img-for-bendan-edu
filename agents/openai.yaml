@@ -1,0 +1,7 @@
+interface:
+  display_name: "傻瓜学术绘图"
+  short_description: "从二十篇领域论文中学习绘图风格，经过五轮返工并以可编辑软件重绘交付"
+  default_prompt: "使用 $img-for-bendan-edu，阅读我的论文和绘图需求，完成参考学习、五轮返工及最终软件重绘。"
+  icon_small: "./assets/brand/logo.png"
+  icon_large: "./assets/brand/logo.png"
+  brand_color: "#17334D"

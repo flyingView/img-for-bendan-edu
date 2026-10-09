@@ -1,0 +1,17 @@
+{
+  "tool": "imagegen (内置)",
+  "created_date": "2026-10-09",
+  "assets": [
+    {
+      "file": "logo.png",
+      "prompt": "Use case: logo-brand. Asset type: a single primary logo icon for a Chinese open-source academic figure drawing Agent Skill named img-for-bendan-edu (傻瓜学术绘图). Primary request: create a distinctive minimal vector-like brand mark, no lettering. The core idea is repeated learning from research-paper figures and rebuilding precise editable diagrams. Design a geometric open-book / two-page research-paper symbol that becomes a small diagram: the left page has three short stacked scientific text strokes, the right page has a simple ascending connected-node path ending at a warm orange round node. A tiny orange edit/nib detail can merge naturally into the page corner. It should read as one coherent iconic mark, friendly but scholarly, not a mascot. Centered on a genuinely transparent background with generous clear margin. Flat dark ink navy and a restrained warm vermilion orange accent, crisp consistent stroke geometry, no gradients, no shadows, no 3D, no microscopic details, no surrounding circle badge, no sparkles. High-end editorial/open-source identity, recognizable at 32px, squared but subtly softened corners. Deliver one isolated large mark, no variations or presentation sheet.",
+      "transparent_background": true
+    },
+    {
+      "file": "banner.png",
+      "prompt": "Use case: logo-brand. Asset type: wide GitHub repository README banner for img-for-bendan-edu, a Chinese academic figure drawing Agent Skill. Create a polished wide horizontal editorial banner, approximate 2.4:1 aspect ratio. Use the supplied transparent icon as the brand identity reference and place a faithful crisp representation large on the right. Warm off-white paper background, deep ink navy typography, restrained warm orange accent, flat clean design. Left area contains large beautifully typeset exact Chinese headline: '傻瓜学术绘图'. Below it in comfortably readable substantial type: 'img-for-bendan-edu'. Beneath with clear spacing one large supporting line: '向经典学习 · 反复打磨 · 精细重绘'. A simple orange short rule or square is allowed. Generous whitespace, exceptionally clean typography and high contrast, all text large and readable. No tiny captions, no disclaimer or boundary descriptions, no decorative mini icons, no mockup device, no shadows, no gradients, no badges, no additional English slogans. This is an open-source research design tool identity, thoughtful, approachable and precise. Produce a finished banner suitable for the top of a README.",
+      "referenced_image": "logo.png",
+      "transparent_background": false
+    }
+  ]
+}
