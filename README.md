@@ -13,7 +13,8 @@
 把本项目的链接或文件夹交给智能体，直接说：
 
 ```text
-请阅读这个项目的 INSTALL.md，把 img-for-bendan-edu 安装到你当前使用的客户端，并检查是否能加载。
+请从 https://github.com/flyingView/img-for-bendan-edu 读取 INSTALL.md，
+把 img-for-bendan-edu 安装到你当前使用的客户端，并检查是否能加载。
 ```
 
 也可以在项目目录运行一条命令，将平台名换成 `codex`、`claude-code`、`qwen-work` 或 `qoder`：
@@ -23,6 +24,8 @@ python scripts/install.py --agent codex
 ```
 
 安装后让客户端重新加载技能或新开会话。完整安装方式见 [INSTALL.md](INSTALL.md)。
+
+支持本地导入的客户端，也可以使用 [最新版 Skill 安装包](https://github.com/flyingView/img-for-bendan-edu/releases/latest/download/img-for-bendan-edu.zip)。
 
 ## 2. 给论文，说需求
 
