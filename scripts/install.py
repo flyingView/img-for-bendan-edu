@@ -25,7 +25,7 @@ PROFILES = {
 RUNTIME_FILES = (
     "SKILL.md", "LICENSE", "requirements.txt", "agents/openai.yaml",
     "assets/defaults.json", "assets/brand/logo.png",
-    "scripts/init_task.py", "scripts/pdf_figures.py",
+    "scripts/init_task.py", "scripts/pdf_figures.py", "scripts/archive_delivery.py",
 )
 
 

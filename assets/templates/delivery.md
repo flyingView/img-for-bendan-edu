@@ -5,6 +5,8 @@
 - Editable source/code and reproduction steps:
 - Caption and insertion position/status:
 - Selected settings: P papers, R reviews, R+1 generated drafts:
+- Process archive path and cache cleanup result:
+- Re-export check using the retained source after housekeeping:
 
 | Completed work | Actual result | Evidence path |
 | --- | --- | --- |

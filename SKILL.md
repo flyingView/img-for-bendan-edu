@@ -3,7 +3,7 @@ name: img-for-bendan-edu
 description: Create scientific figures from a figure brief or by reading a manuscript to select useful illustration positions. Learn from reference papers, refine generated drafts, then rebuild an editable final with code or drawing software.
 license: MIT
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
   language: "en"
 ---
 
@@ -39,6 +39,8 @@ Apply these rules to every generation prompt, every review, and the software fin
 Read [scenarios](references/scenarios.md). A **specific-figure** request starts from the user's brief. A **manuscript-illustration** request first identifies useful figure positions and produces a short whole-paper plan, then works figure by figure.
 
 Create the task root named in [defaults](assets/defaults.json) inside the paper project, then `img1/`, `img2/`, and so on. Use the largest existing number plus one; resume the same figure in its existing folder. Keep all its materials and code there. The directory index is separate from its manuscript Figure number.
+
+Keep the skill's own scripts in its installed directory. Run figure-specific work inside `imgN/`, place disposable files and tool caches in `.work/`, and keep source dependencies in `data/` or `redraw/`.
 
 Optional helper, run from this skill's actual directory, replacing the example counts with the selected P and R:
 
@@ -104,5 +106,7 @@ Aim for near 1:1 visual fidelity while correcting scientific or generated errors
 ## 8. Deliver and continue from feedback
 
 Deliver the final preview, manuscript-ready format, editable source/code, reproduction steps, caption and insertion position in `delivery.md`. If insertion was requested and the manuscript is editable, insert the figure and verify caption, references and layout.
+
+After verified delivery, follow [delivery housekeeping](references/artifacts.md#delivery-housekeeping): archive process materials, clear `.work/`, and retain the final, editable source and required data. Include the archive path in the handoff.
 
 Wait for user feedback and save later revisions within the same `imgN/`. Revisit earlier stages when the scientific content or figure purpose changes.

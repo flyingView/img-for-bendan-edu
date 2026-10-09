@@ -58,8 +58,9 @@ def create_task(
         except FileExistsError:
             continue
 
-    for directory in ("references", "generation", "comparisons", "data", "redraw", "final"):
+    for directory in ("references", "generation", "comparisons", "data", "redraw", "final", ".work"):
         (target / directory).mkdir()
+    (target / ".gitignore").write_text(".work/\n.archive.lock\n.state-*.tmp\n", encoding="utf-8")
 
     state = {
         "schema_version": 2,

@@ -17,6 +17,8 @@ python scripts/install.py --agent qoder
 
 Run **one command for the intended host**, not the entire list. The installer makes no network requests, copies only runtime files, and leaves an identical installation unchanged. A different existing installation is preserved; inspect it before choosing a new destination or replacing it.
 
+All bundled scripts, references and assets stay inside that single skill directory. Fetch the repository outside the paper project when preparing installation. To uninstall, use the host's skill manager or remove that exact `img-for-bendan-edu/` directory; paper figures remain in their own project workspace.
+
 ## Verified directory conventions
 
 Paths checked against official documentation on 2026-10-09. Each destination below receives an `img-for-bendan-edu/` subfolder.
@@ -50,6 +52,6 @@ The ZIP contains one `img-for-bendan-edu/` folder with `SKILL.md` at its root. I
 
 ## Runtime capabilities
 
-The workflow uses the host's literature search, PDF reading, vision, image generation and local code/drawing capabilities. Discover their actual names at runtime. Python helpers are optional; PDF helpers need `python -m pip install -r requirements.txt` in a suitable environment. Normal host permissions still apply.
+The workflow uses the host's literature search, PDF reading, vision, image generation and local code/drawing capabilities. Discover their actual names at runtime. Python helpers are optional; PDF helpers need the packages in `requirements.txt`. Use an existing suitable environment or create a `.venv/` inside the installed skill directory. The installer itself installs no Python packages.
 
 Verify installation by checking host discovery. Invoke the skill by its name in natural language; host-specific slash or dollar syntax is optional.
