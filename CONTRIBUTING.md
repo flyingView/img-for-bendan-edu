@@ -1,23 +1,14 @@
-# 贡献指南
+# Contributing
 
-欢迎改进真实绘图任务中的需求理解、参考学习、对照评审和重绘交付。
+Keep the author's workflow central: manuscript understanding, reference learning, generated drafts and comparisons, then editable software reconstruction. Paper count and review rounds are selected at intake, with defaults of 20 and 5.
 
-## 提交反馈
+Add only guidance that changes a useful decision. Keep supporting search and drawing hints short. Preserve the six figure expression rules and the host-neutral skill format.
 
-说明使用场景、所处步骤、实际表现和期待结果。附上可公开的最小案例；与问题无关的论文内容不必上传。
+Use English for skill files, templates, code comments and supporting documentation; keep README.md in Chinese. Use Chinese Git commit messages. Share only materials you may publish.
 
-## 修改原则
-
-- 保留20篇学习、五轮返工、六版生图与软件终稿的主流程，流程变更先说明用途。
-- 让新规则落到可观察的动作和结果，减少重复文档与抽象形容。
-- 流程规则写在 `SKILL.md` 或对应参考中，模板只收集执行证据。
-- 提交描述使用中文。修改脚本后运行对应测试；增加测试应验证实际行为。
+Run the relevant tests after script changes:
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
-
-## 图例和案例
-
-提交者应确认自己有权公开素材，并注明来源。可使用自行绘制的示意图、开放许可材料或合成数据演示；合成案例明确标注，不当作真实实验结论。

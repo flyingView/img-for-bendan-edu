@@ -1,62 +1,34 @@
-# 任务文件与续作
+# Files and resumption
 
-所有本图代码、数据、文献、参考图、提示词、生成图与重绘工程放在对应 `imgN/`。不要散落在论文根目录或 Skill 安装目录。全文总规划是多图任务的唯一共用入口文件。
+The task-root name is stored in [defaults](../assets/defaults.json). It preserves the author's original workspace convention. Each new figure uses the next available `imgN`; continuing a figure reuses its folder.
 
 ```text
-论文项目/
-└── 重型绘图任务/
-    ├── 论文配图总规划.md                 # 仅论文配图场景
-    ├── img1/
-    │   ├── 任务状态.json
-    │   ├── 原始需求和内容理解规划.md
-    │   ├── 参考文献/
-    │   │   ├── 检索记录.md
-    │   │   ├── 文献清单.csv
-    │   │   ├── 逐篇学习记录.md
-    │   │   ├── 参考图对照索引.png
-    │   │   └── P01/ … P20/             # paper.pdf、原页面、裁图、图注
-    │   ├── 初步总结风格.md
-    │   ├── 风格学习增量.md
-    │   ├── 生图/
-    │   │   ├── 提示词1.md … 提示词6.md
-    │   │   └── 图片版本1.png … 图片版本6.png
-    │   ├── 返工1.md … 返工5.md
-    │   ├── 对照/                       # 各轮并排图、叠加图等检查材料
-    │   ├── 数据/                       # 实际用到的数据与来源说明
-    │   ├── 重绘/
-    │   │   ├── 重绘方案.md
-    │   │   └── 可编辑源文件或代码
-    │   ├── 最终交付/
-    │   │   ├── 最终版本.png
-    │   │   ├── 最终版本.svg或pdf等
-    │   │   ├── 图注与插入说明.md
-    │   │   └── 复现说明.md
-    │   ├── 交付说明.md
-    │   └── 用户修订1/                 # 收到新反馈后创建
-    └── img2/ …
+<paper-project>/<task-root>/
+  manuscript-plan.md                 # manuscript mode only
+  img1/
+    task.json                        # selected P/R, progress, next action
+    requirements.md
+    references/
+      papers.csv
+      search-log.md
+      study-notes.md
+      reference-index.png
+      P01/ ...                       # PDFs, pages, crops, captions
+    style-study.md
+    style-updates.md
+    generation/
+      prompt-01.md ... prompt-{R+1}.md
+      v01.png ... v{R+1}.png
+    review-01.md ... review-{R}.md
+    comparisons/
+    data/
+    redraw/plan.md                    # plus editable source/code
+    final/                           # outputs, caption, reproduction steps
+    delivery.md
 ```
 
-扩展名按工具真实输出保留，不能仅改后缀假装转换。若修改原稿，最终采用的插图副本可放入论文已有图片目录；本图完整工作记录仍留在 `imgN/`，注明两处路径。
+Use at least two digits for draft/review numbers and the actual image extension. R=0 creates no review files. Create templates when their stage starts, not an empty set that appears completed.
 
-## 任务状态
+`task.json` records selected `paper_count`, `refinement_rounds`, derived `expected_versions`, actual completed drafts/reviews, verified-paper count and the next action. The helper labels parameter sources as `argument` or `default`; update `argument` to `user` or `default` based on the intake. Update state after each stage; files and tool results are the evidence. Apply changed parameters to remaining work, keep earlier artifacts, and record any already-completed work beyond a newly reduced target.
 
-初始化脚本生成 `任务状态.json`。每个阶段或每轮完成后更新：
-
-- `stage`：当前阶段，如 `requirements`、`references`、`generation`、`redraw`、`delivered`、`blocked`。
-- `reference_papers_verified`：真正下载、提图并看过的论文数。
-- `completed_versions`：已真实生成的版本号列表。
-- `completed_reviews`：已完成的返工号列表。
-- `next_action`：下次可直接执行的动作。
-- `blockers`：真实阻塞，解除后清除。
-
-状态是索引，实际文件和工具执行记录才是证据。不要提前把计划中的版本或论文填成完成。
-
-`imgN` 按目录最大编号加一，不填补缺号，不覆盖已有同名文件。并发新建通过目录独占创建避免碰撞；续作同图时直接读取其目录，不再执行新建命令。
-
-## 模板使用
-
-`assets/templates/` 中的模板用于输出，不要求一次性创建空白返工记录。需求模板在初始化时复制，其余在实际进入该阶段时复制并填写。不要用模板中的待填项作为评审或验证结论。
-
-## 资料边界
-
-下载的第三方论文与原图属于研究参考资料。对外分享终稿或发布项目时仅包含具有相应发布权的内容，并保留来源。公开发布 Skill 仓库时不附带用户未发表稿件、真实任务目录或第三方整篇 PDF；本仓库的 `.gitignore` 已排除 `重型绘图任务/`。
+On resume, read state plus the latest requirements and review, then check actual files before continuing. For older Chinese-language task files, read them in place and continue in that same figure folder; retain P/R if recorded, otherwise ask once and use the intake defaults. Do not migrate or rename existing user work automatically.

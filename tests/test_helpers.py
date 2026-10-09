@@ -1,4 +1,4 @@
-"""验证编号、已有文件保护及PDF矢量/文字的完整渲染。"""
+"""Check task settings, numbering, file preservation and complete PDF rendering."""
 
 import argparse
 import hashlib
@@ -36,33 +36,53 @@ class IsolatedCase(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix="check-", dir=scratch)
         self.directory = Path(self.temporary.name).resolve()
         if not self.directory.is_relative_to(scratch.resolve()):
-            raise RuntimeError("测试临时目录必须位于本仓库tmp目录内。")
+            raise RuntimeError("Test scratch directories must stay inside this repository's tmp folder.")
         self.addCleanup(self.temporary.cleanup)
 
 
 class InitTaskTests(IsolatedCase):
     def test_max_number_and_existing_files_preserved(self):
         first = init_task.create_task(self.directory)
-        sentinel = first / "原始需求和内容理解规划.md"
-        sentinel.write_text("已有用户内容", encoding="utf-8")
+        sentinel = first / "requirements.md"
+        sentinel.write_text("Existing user content", encoding="utf-8")
         (first.parent / "img7").mkdir()
         (first.parent / "img100-note").mkdir()
         created = init_task.create_task(self.directory, "manuscript")
         self.assertEqual(created.name, "img8")
-        self.assertEqual(sentinel.read_text(encoding="utf-8"), "已有用户内容")
-        state = json.loads((created / "任务状态.json").read_text(encoding="utf-8"))
+        self.assertEqual(sentinel.read_text(encoding="utf-8"), "Existing user content")
+        state = json.loads((created / "task.json").read_text(encoding="utf-8"))
         self.assertEqual(state["completed_versions"], [])
         self.assertEqual(state["reference_papers_verified"], 0)
 
     def test_manuscript_plan_not_overwritten(self):
         first = init_task.create_task(self.directory, "manuscript")
-        plan = first.parent / "论文配图总规划.md"
-        plan.write_text("已经完成的规划", encoding="utf-8")
+        plan = first.parent / "manuscript-plan.md"
+        plan.write_text("Existing figure plan", encoding="utf-8")
         init_task.create_task(self.directory, "manuscript")
-        self.assertEqual(plan.read_text(encoding="utf-8"), "已经完成的规划")
+        self.assertEqual(plan.read_text(encoding="utf-8"), "Existing figure plan")
+
+    def test_default_and_custom_parameters(self):
+        cases = [(None, None, 20, 5, 6), (12, 3, 12, 3, 4), (1, 0, 1, 0, 1)]
+        for papers, rounds, expected_p, expected_r, versions in cases:
+            with self.subTest(papers=papers, rounds=rounds):
+                task = init_task.create_task(self.directory, paper_count=papers, refinement_rounds=rounds)
+                state = json.loads((task / "task.json").read_text(encoding="utf-8"))
+                self.assertEqual(state["paper_count"], expected_p)
+                self.assertEqual(state["refinement_rounds"], expected_r)
+                self.assertEqual(state["expected_versions"], versions)
+                self.assertEqual(state["parameter_sources"]["paper_count"],
+                                 "default" if papers is None else "argument")
+                self.assertEqual(state["completed_reviews"], [])
+                self.assertTrue((task / "references/papers.csv").is_file())
+
+    def test_invalid_parameters_create_no_task(self):
+        for papers, rounds in ((0, 5), (-1, 5), (20, -1), (True, 5), (20, 1.5)):
+            with self.subTest(papers=papers, rounds=rounds), self.assertRaises(ValueError):
+                init_task.create_task(self.directory, paper_count=papers, refinement_rounds=rounds)
+        self.assertFalse((self.directory / init_task.TASK_FOLDER).exists())
 
     def test_concurrent_initialization_has_unique_ids(self):
-        # 分离进程验证真实文件系统竞争，避免仅测试一个Python线程中的编号计算。
+        # Separate processes exercise actual filesystem races during numbering.
         def invoke(_):
             result = subprocess.run(
                 [sys.executable, "-X", "utf8", str(ROOT / "scripts/init_task.py"),
@@ -75,7 +95,7 @@ class InitTaskTests(IsolatedCase):
         self.assertEqual(set(results), {"img1", "img2", "img3"})
 
     def test_invalid_project_fails_without_creating_directory(self):
-        missing = self.directory / "不存在"
+        missing = self.directory / "missing-project"
         with self.assertRaises(FileNotFoundError):
             init_task.create_task(missing)
         self.assertFalse(missing.exists())
@@ -84,7 +104,8 @@ class InitTaskTests(IsolatedCase):
 class PdfFigureTests(IsolatedCase):
     def setUp(self):
         super().setUp()
-        self.pdf = self.directory / "含矢量文字的示例.pdf"
+        # Keep Unicode path coverage for manuscripts in non-English projects.
+        self.pdf = self.directory / "\u8bba\u6587-vector-text.pdf"
         with pymupdf.open() as document:
             page = document.new_page(width=200, height=100)
             page.draw_rect(pymupdf.Rect(10, 10, 70, 70), color=(1, 0, 0), fill=(1, 0, 0))
@@ -95,7 +116,7 @@ class PdfFigureTests(IsolatedCase):
             document.save(self.pdf)
 
     def args(self, **overrides):
-        values = dict(command="crop", pdf=self.pdf, out=self.directory / "图例",
+        values = dict(command="crop", pdf=self.pdf, out=self.directory / "figures",
                       dpi=72, page=1, box="0,0,1,1", figure_id="P01-Fig1")
         values.update(overrides)
         return argparse.Namespace(**values)
@@ -144,7 +165,7 @@ class PdfFigureTests(IsolatedCase):
         for page in (0, 3):
             with self.subTest(page=page), self.assertRaises(ValueError):
                 pdf_figures.execute(self.args(page=page))
-        self.assertFalse((self.directory / "图例").exists())
+        self.assertFalse((self.directory / "figures").exists())
 
     def test_path_traversal_and_invalid_pdf_rejected(self):
         with self.assertRaises(ValueError):
@@ -153,7 +174,7 @@ class PdfFigureTests(IsolatedCase):
         invalid.write_text("<html>Not a PDF</html>", encoding="utf-8")
         with self.assertRaises(Exception):
             pdf_figures.execute(self.args(pdf=invalid))
-        self.assertFalse((self.directory / "图例").exists())
+        self.assertFalse((self.directory / "figures").exists())
 
 
 if __name__ == "__main__":

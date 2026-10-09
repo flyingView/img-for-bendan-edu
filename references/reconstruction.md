@@ -1,58 +1,27 @@
-# 重绘与交付
+# Software reconstruction and delivery
 
-## 先拆图，再选工具
+Break the last generated draft into panels, labels, shapes, arrows, plots and genuine research imagery. Choose a tool based on what must remain editable:
 
-列出版本6中的面板、文字、公式、曲线、节点、箭头、纹理、照片或三维对象。区分视觉构图与科学内容：前者尽量保持，后者重新从需求文件和真实数据核对。
+| Content | Typical suitable tools |
+| --- | --- |
+| Quantitative plots | Matplotlib, R/ggplot2, or the user's existing statistics software |
+| Architecture, workflows and relationships | SVG, TikZ, Graphviz, diagrams.net or Inkscape |
+| Freely editable composite layouts | PowerPoint, Illustrator or Inkscape |
+| Spatial geometry or scientific structures | Blender or a field-specific application |
 
-评估候选工具的图元控制、字体支持、导出能力、源文件可编辑性和当前环境的可用程度。先用一个包含文字、箭头和复杂对象的局部试绘验证，再制作完整终稿。
+Use the simplest available combination. Record it in `redraw/plan.md`; test a representative panel before rebuilding the whole figure. Preserve the final draft's composition, proportions, hierarchy and color meanings, correcting its scientific errors and generation artifacts.
 
-| 图的主要内容 | 可考虑的重绘工具 | 应交付的源内容 |
-| --- | --- | --- |
-| 曲线、柱状、散点、热图、统计面板 | Matplotlib、R/ggplot2、用户已有统计软件 | 绘图代码、实际使用的数据、依赖与参数 |
-| 架构、流程、概念关系、模块示意 | SVG、TikZ、Graphviz、diagrams.net、Inkscape | 文本/矢量对象或原生工程文件 |
-| 需要自由编辑的组合版式 | PowerPoint、Illustrator、Inkscape等已有软件 | 原生工程、素材与字体说明 |
-| 三维几何、结构或空间机制 | Blender及领域专用建模软件 | 场景、模型、相机与渲染参数 |
-| 显微、医学影像、实验照片 | 领域软件与真实图像处理流程 | 原始科研图像来源、处理脚本/记录、标尺依据 |
+## A few implementation cues
 
-以上是能力匹配示例，不是安装清单，也不保证当前环境具备这些工具。优先选择足以完成任务的最简单组合，避免为一张图引入无关框架或付费依赖。软件版本、许可和投稿格式要求以实际环境与目标期刊官方说明为准。
+- Route connectors to clear attachment points; avoid crossings, label collisions and ambiguous arrow endpoints. Group related objects and keep reusable styles consistent.
+- Match colors to data semantics and pair important distinctions with a label, marker or line type. Keep legends readable and consistent across panels.
+- Plot real values, units, uncertainty and missing observations accurately. Check that axis ranges and shared color scales preserve the intended comparisons.
+- Verify physical output size after export. Cropping may change dimensions; editable text depends on font availability. Keep editable source even if delivery requires outlined fonts.
 
-## “基本1∶1”的含义
+Build actual vector objects, text, data-driven plots or a reproducible scene. AI-generated drafts are visual references only and must not appear as final image layers. Automatic bitmap tracing or embedding a generated image does not satisfy reconstruction. Real research images retain their source and processing record.
 
-保持图意、信息结构、面板比例、对象关系、阅读顺序、色彩语义、主要位置和层级；精确恢复文字、符号、数据和连线。使用叠加或并排比较检查对齐、间距、边界和遗漏。
+Save source/code and used data under `redraw/` and `data/`. Export an appropriate manuscript format plus a PNG preview under `final/`, with caption/insertion and reproduction instructions. Choose actual dimensions and resolution for the target publication; verify publisher rules when a specific venue is named.
 
-不承诺像素完全相同。版本6中的科学错误、乱码、假刻度、装饰性伪影和难以编辑的细节应纠正，列在重绘方案的差异说明中。忠实表达论文优先于复刻生成瑕疵。
+Open the delivered files at manuscript size. Check scientific meaning, all six figure expression rules, fonts, legend, clipping and layout. Compare with the last draft, then re-export from saved source. Record the result in `delivery.md`.
 
-## 终稿来源约束
-
-- 图元、标注与曲线由程序、软件图形对象或有依据的建模过程创建。
-- 真实照片、显微图、地图底图等必须有明确来源与处理记录，按领域惯例保留标尺、采集条件与必要说明。
-- AI生成版本1—6只在参考位置使用，导出终稿前隐藏或移除参考层。
-- 将生成图片嵌入画布、自动描摹生成位图、矢量容器包裹位图、简单放大转存，都不满足精细重绘要求。
-- 图像处理不得生成或篡改实验观测内容；若原始科研素材缺失，应请求素材或交付明确的概念示意，不能冒充实验图。
-
-## 导出和检查
-
-在 `重绘/` 保存源文件、实际输入数据或稳定来源索引、参数和依赖说明。在 `最终交付/` 输出最适合目标稿件的格式，通常包括：
-
-- `最终版本.svg` 或 `最终版本.pdf`：适合矢量图时提供。
-- `最终版本.png`：供预览与通用插入。
-- 原生软件文件或代码入口：可以从 `重绘/` 链接，不必复制两套。
-- `图注与插入说明.md`：图注、缩写解释、目标位置和正文引用建议。
-- `复现说明.md`：实际运行命令/软件版本、字体、数据路径、导出步骤。
-
-按目标版面检查字号和线宽，按投稿要求设定位图分辨率。期刊未知时明确写出暂用尺寸和分辨率，不把经验值称作通用投稿标准。
-
-重新打开导出文件检查：
-
-1. [图面表达要求](../SKILL.md#图面表达要求) 全部满足，尤其是小字、文案、图标、图例和色调。
-2. 所有必需对象、数据值、单位、符号和箭头含义正确，图注与正文一致。
-3. 实际版面尺寸下文字和图例清楚，无遮挡、裁切、乱码、字体替换或遗漏。
-4. 颜色有一致语义，灰度或常见色觉差异条件下关键类别仍可用线型、符号或文字区分。
-5. 源文件具有真实可编辑图元；最终图没有 AI生成图层。
-6. 从已保存的源文件再导出成功；记录真实命令、工具反馈或软件操作步骤。
-
-单纯声称“看起来相似”或“已导出SVG”不算验证。将证据写入 [交付说明模板](../assets/templates/交付说明.md)。
-
-## 后续用户修订
-
-保留上次交付文件，按 `最终版本-r1`、`最终版本-r2` 递增。记录用户反馈、改动位置和相应检查。对局部标注、间距、颜色修改直接编辑可重绘源文件；不必重启20篇检索和六版生图。
+For later local edits, revise the saved source and append a new final version. Restart earlier stages only for a change in the scientific message or figure purpose.

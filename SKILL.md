@@ -1,140 +1,111 @@
 ---
 name: img-for-bendan-edu
-description: 辅助科研论文绘图。用于用户指定一张论文图，或要求通读论文并在合适位置设计配图；从20篇领域论文的真实图例中提炼风格，完成6版生图与5轮对照返工，再以代码或绘图软件重绘可编辑终稿。
+description: Create scientific paper figures from a specific figure brief or by reading a manuscript and selecting useful illustration positions. Learn from reference-paper figures, compare and refine generated drafts, then rebuild the final figure with editable code or drawing software. Ask for paper count and refinement rounds at intake; recommend 20 papers and 5 rounds.
 license: MIT
 metadata:
-  version: "0.1.0"
-  language: "zh-CN"
+  version: "0.2.0"
+  language: "en"
 ---
 
-# 傻瓜学术绘图
+# Academic Figure Studio
 
-把论文要表达的科学内容，转化为有领域依据、经过反复比较、能够精细编辑和复现的图片。核心是**有证据地学习优秀论文的视觉表达，并让每轮学习改变下一版图**。
+Learn from strong examples, make each comparison improve the next draft, and deliver an editable software reconstruction. Follow the author's workflow below; use the host agent's judgment and available tools for implementation.
 
-## 执行约定
+## First action: ask for the two parameters
 
-- 从论文的论点、证据和读者需求出发决定图的内容；装饰服从信息表达。
-- 正常流程固定为 **20 篇参考论文 → 图片版本1 → 5轮返工 → 图片版本6 → 软件重绘终稿**。除用户明确改变范围外，完整执行，不因“已经好看”提前结束，也不自动无限延长生图轮次。
-- 参考论文用于学习布局、视觉编码和表达方式。数据、科学关系和结论来自用户材料；学习风格不等于复制他人的独特图形或科学内容。
-- 科学准确性高于对版本6的外观复现。定量图的数值、误差、坐标和统计关系始终由真实数据驱动；生图阶段只探索视觉方案。
-- 最终版本必须由代码或绘图软件构建真实图元、文字、曲线或三维场景。不得嵌入 AI 草图充当终稿，不得把生图转存为 SVG/PDF 后宣称已重绘。
-- 所有模板中的空项都是待执行记录，不是完成证据。只报告实际下载、观察、生成和验证过的成果。
+In the user's language, ask one short question as soon as this skill is invoked:
 
-## 图面表达要求
+> How many reference papers and refinement rounds would you like? Recommended and default: **20 papers, 5 rounds**. You can reply with two numbers, such as **12 papers, 3 rounds**.
 
-以下要求贯穿需求规划、每版生图、五轮返工与最终重绘：
+- `paper_count = P`: positive integer; default **20**.
+- `refinement_rounds = R`: nonnegative integer; default **5**.
+- Produce **R + 1 generated drafts** and **R review records**, then reconstruct the final draft with software. If R is 0, reconstruct after draft 1.
+- Use values already specified in the request; ask only for missing values. On a resumed task, retain its recorded values unless the user changes them.
+- Prefer the host's question tool. If it supports a nonblocking question, continue locating and reading the manuscript while the user considers it. Allow a reasonable reply window (about one minute) before applying defaults to unanswered fields. A skipped or empty answer uses defaults. With text-only interaction, ask once, state the defaults, and proceed with manuscript reading before settling unanswered fields. Do not repeatedly ask or wait indefinitely.
+- Record the selected values and whether they came from the user or defaults. A later answer updates pending work without discarding completed artifacts.
 
-- **不放小字说明**：图内仅保留必要标签、变量、面板编号和图例；说明性文字放入图注或正文，按论文实际展示尺寸保证可读。
-- **不写边界描述和防御性文案**：图面直接表达核心内容，不加局限、免责声明、自我辩护式说明。
-- **简洁明确**：一张图有清楚的主信息，结构、关系和阅读顺序一眼可辨；删去不承担信息的装饰。
-- **不堆砌 AI 小图标**：优先使用统一的几何图元与必要的领域符号；每个图形都应承担明确含义。
-- **图例清晰**：颜色、线型、符号与含义一一对应，命名一致，图例位置便于查找。
-- **色调美观**：从参考图中提炼协调、克制的色板，用少量强调色突出主线，同一语义保持同色。
+## Figure expression rules
 
-## 1. 确定场景，建立任务目录
+Apply these rules to every generation prompt, every review, and the software final:
 
-先读取 [场景与需求](references/scenarios.md)，选择：
+1. **No small explanatory text.** Keep necessary labels, variables, panel letters and legends readable at manuscript size. Put explanations in the caption or body.
+2. **No scope-boundary descriptions or defensive prose.** Express the main content directly; leave caveats, disclaimers and self-justification off the figure.
+3. **Be concise and clear.** Use one main message, a visible hierarchy and an obvious reading order.
+4. **No piles of AI-generated mini-icons.** Prefer consistent geometric elements and necessary domain symbols with clear meanings.
+5. **Make legends clear.** Map colors, symbols and line types to meanings consistently; place the legend where readers can find it.
+6. **Use a harmonious palette.** Learn a restrained set of colors from the references, emphasize the main path, and keep each meaning the same color.
 
-- **指定单图**：用户已经给出提示词、图意或目标位置。以用户需求为主线，利用论文核对图意。
-- **论文配图**：用户提供论文，让智能体判断哪些位置需要配图。先做全文配图规划，再逐图执行。
+## 1. Select the mode and create the figure workspace
 
-在用户的论文项目根目录创建 `重型绘图任务/`，为每个新图分配 `img1/`、`img2/`……。编号取已有最大编号加一；继续修改同一张图时复用其目录。目录编号与论文中的 Figure 编号分别记录，避免增删正文图时移动任务资料。
+Read [scenarios](references/scenarios.md). A **specific-figure** request starts from the user's brief. A **manuscript-illustration** request first identifies useful figure positions and produces a short whole-paper plan, then works figure by figure.
 
-可在本 Skill 目录运行：
+Create the task root named in [defaults](assets/defaults.json) inside the paper project, then `img1/`, `img2/`, and so on. Use the largest existing number plus one; resume the same figure in its existing folder. Keep all its materials and code there. The directory index is separate from its manuscript Figure number.
+
+Optional helper, run from this skill's actual directory, replacing the example counts with the selected P and R:
 
 ```bash
-python scripts/init_task.py --project "论文项目路径" --mode single
+python scripts/init_task.py --project "/path/to/paper" --mode single --papers 20 --rounds 5
 ```
 
-论文配图用 `--mode manuscript`。脚本仅创建目录与需求模板，不执行检索、生图或论文修改。文件约定见 [任务文件与续作](references/artifacts.md)。
+Use `--mode manuscript` for whole-paper work. If Python is unavailable, create the same files directly. See [artifacts](references/artifacts.md) for names and resumption.
 
-检查当前环境是否能访问论文、检索文献、下载和渲染 PDF、看图、生图、使用重绘软件。能力缺失时完成不依赖它的工作，记录准确断点；不得用文字或复制文件冒充已完成的生图与观察。只对实质阻塞的信息提问。
+Use the host's search, PDF, vision, image-generation and drawing tools. No particular model, API provider, MCP server or extra skill is required by name. If a required capability is absent, finish independent work and identify the exact missing capability rather than claiming the stage completed.
 
-**完成条件：** 场景、项目路径、图目录和当前能力明确；续作任务已读取已有状态。
+## 2. Understand the manuscript and original request
 
-## 2. 读懂论文，形成原始需求
+Locate the intended manuscript version. Read its argument, methods, results, existing figures and captions, then closely read the material relevant to this figure.
 
-找到用户指定或项目内最相关的论文/初稿。先确认版本，再读摘要、引言、方法、结果、已有图表与图注；重点深读与本图有关的段落、公式和数据。记录真实阅读范围，不以摘要代替全文理解。
+Write `requirements.md`: preserve the original prompt; state the figure's main message, insertion anchor, objects and relationships, panel order, scientific sources, manuscript dimensions, language and proposed caption. Separate source facts from design choices. Use the [requirements template](assets/templates/requirements.md).
 
-把用户原始提示词原样保留，结合论文形成 `原始需求和内容理解规划.md`：
+**Done when:** the content and position are clear, every scientific element has a source, and ambiguities affecting the scientific meaning are resolved.
 
-- 这张图要让读者理解的一个核心信息，以及必要的次要信息。
-- 插入章节、段落或源码锚点，前后论证关系，拟用图注。
-- 图中对象、关系、面板、阅读顺序；每项科学内容对应的论文或数据出处。
-- 领域与细分方向、目标读者、图类型、版面宽度、语言和导出要求。
-- 用户明确要求、根据材料作出的判断、仍未证实的内容，分别标明。
+## 3. Find P papers and extract their figures
 
-若没有可读论文，先依据提示词整理已知需求，并请求论文或必要段落；不能编造论文定位、领域依据或数据。对于不影响科学表达的选项，记录合理默认并继续。
+Read the short [reference-learning guide](references/reference-learning.md). Keep this priority order:
 
-**完成条件：** 每项必画内容可追溯；图意和位置明确；会改变科学结论的疑问已解决。
+1. Classic papers in the same field and the same narrow topic.
+2. High-quality papers in that topic from the most recent 1-3 months.
+3. Classic papers in the same field but other narrow topics.
 
-## 3. 寻找20篇论文，下载并提取图例
+Download accessible PDFs, verify their identities, and select at least one relevant complete figure from each. Keep page numbers, figure IDs, captions and source links. Inspect the figures themselves and record one useful observation per paper in `references/study-notes.md`; keep a labeled visual index for comparisons.
 
-读取 [参考检索与风格学习](references/reference-learning.md)，按以下优先级筛选20篇不同的研究工作：
+**Done when:** P distinct research works have local PDFs, inspected figures and usable notes. Report any shortfall and resolve access or selection before treating this stage as complete.
 
-1. 同领域、相同细分方向的经典论文。
-2. 同领域、相同细分方向、最近1—3个月内的优质论文。
-3. 同领域、不同细分方向的经典论文。
+## 4. Turn observations into a style plan
 
-从高优先级开始，记录筛选依据和不足时的扩展过程。近期窗口按执行当天计算；经典与优质必须有可核验的理由。同一论文的预印本和正式版本合并计数。
+Write `style-study.md`: **reference evidence → useful feature → application to this figure**. Separate information structure from visual styling. Define a small consistent set of layout, label, line, arrow, legend and color choices. Distinguish observed conventions from verified publisher requirements.
 
-保存可合法获取的 PDF，为每篇选择至少一张与本图类型或表达问题相关的图。保留页码、图号、图注、完整页面和图区域，核查文字、矢量线条、图例和面板是否完整。逐篇实际看图后写入 `参考文献/文献清单.csv` 与 `参考文献/逐篇学习记录.md`。
+**Done when:** the plan can guide actual drawing and its main decisions point to reference figures. Use the [style template](assets/templates/style-study.md).
 
-**完成条件：** 20篇均有可打开的本地 PDF、准确身份与来源、至少一张已目视核查的相关图例及学习记录。无法达到20篇时如实报告数量与原因，保留已有工作；未经用户调整范围，不宣称此阶段或标准流程完成。
+## 5. Generate draft 1 directly
 
-## 4. 将观察转化为可执行风格规则
+Save `generation/prompt-01.md` before calling the image tool, then save and inspect `generation/v01.png` (or the tool's actual image format). Combine the requirements, style plan, exact labels and figure expression rules. Identify each reference input as style, palette or structure guidance.
 
-围绕全部20篇图例形成 `初步总结风格.md`。提炼版式、视觉层次、信息密度、线条、箭头、字体、色彩语义、面板编号、图例与留白等可迁移规律。
+Record the actual tool and available model information. Keep scientific relationships unchanged. For quantitative figures, derive the real chart layer from data; image generation explores layout or conceptual elements, and never becomes the source of numerical results.
 
-每条规则写清“图例证据 → 使用原因 → 对本图的具体参数或动作 → 适用范围”。区分目标期刊要求、领域惯例、多篇共有特征和个别作者偏好；观察到的共性不能直接冒充投稿规范。规范需要查证目标期刊的官方要求。
+## 6. Compare and refine for R rounds
 
-保留多个图例中的反例与差异，建立一套内部一致的视觉规则，避免把20篇的元素机械拼接。若有规律只是推测，标记为待验证。
+Read [iteration review](references/iteration-review.md). For **n = 1 through R**:
 
-**完成条件：** 规则能指导下一步实际绘制；每条关键规则可定位到图例；科学符号的含义与用户论文一致。
+1. Inspect draft n alongside the complete reference index, enlarging the most relevant examples. Check the preceding review's requested changes.
+2. Write `review-{n:02d}.md`: what looks weaker than the examples, what feels unlike a paper figure in this field, observable AI-looking artifacts, missed lessons, and specific improvements. Anchor each issue to a location and reference; do not invent faults.
+3. Save the next prompt and generate draft n+1. Inspect it for both the intended improvement and any scientific drift.
+4. Save the result, add new lessons to `style-updates.md`, and update `task.json`.
 
-## 5. 直接生图，形成图片版本1
+**Done when:** there are R real reviews and R+1 real generated drafts with prompts. Stop generation at the selected count; carry remaining issues into reconstruction. Defaults give reviews 1-5 and drafts 1-6.
 
-以需求规划和风格总结为依据，编写并保存 `生图/提示词1.md`，调用当前可用的图像生成能力，得到 `生图/图片版本1.png`（可保留工具原始格式）。明确论文图用途、画布比例、面板、文字、关系、色彩语义和必须保持的内容。
+## 7. Reconstruct with code or drawing software
 
-把六项图面表达要求写入本次及后续每版提示词，并结合本图落实标签、图例与色板。
+Read [reconstruction](references/reconstruction.md). Analyze the latest draft and choose the simplest available tool that can reproduce its layout, objects and typography closely. Write a brief `redraw/plan.md` and rebuild it with actual editable elements and source data.
 
-优先使用当前环境已有、获得授权的生图工具，不硬编码供应商、模型名称或 API 密钥。按工具允许的数量传入选定参考图，说明它们仅作风格参考；其余图例通过风格规则传递。记录实际工具、可获得的模型信息、提示词、参考输入和输出路径。
+Aim for near 1:1 visual fidelity while correcting scientific or generated errors. The final must contain **no AI-generated image layers**: embedding, automatic bitmap tracing, upscaling or format-converting the draft is not software reconstruction. Genuine research images may be used with their sources and processing records.
 
-对定量图，先从真实数据生成可信的图表层。生图只探索外层布局、配色或概念面板；若工具不能保持数值图层准确，使用明确标注的示意占位并在重绘时替换，不把生成曲线当成实验结果。
+Open the exported final at manuscript size, check the figure and legend, and export once again from the saved source to verify reproducibility.
 
-**完成条件：** 有真实生成且已查看的版本1，以及可追溯的输入和生成记录。
+**Done when:** the final is scientifically correct, follows the expression rules, has editable source, and can be exported from that source.
 
-## 6. 对照返工，严格执行五轮
+## 8. Deliver and continue from feedback
 
-读取 [五轮对照评审](references/iteration-review.md)。对于 `n = 1…5`，依次完成：
+Deliver the final preview, manuscript-ready format, editable source/code, reproduction steps, caption and insertion position in `delivery.md`. If insertion was requested and the manuscript is editable, insert the figure and verify caption, references and layout.
 
-1. 实际查看图片版本n和全部20篇参考图的对照索引；重点放大最相关图例，并复核上一轮承诺的修改。
-2. 回答：差距具体在哪里；哪些处理缺乏本领域论文图的特征；哪些可观察问题造成“AI味”；上轮漏学了什么；下一版如何改。
-3. 形成 `返工n.md`，给出图中位置、参考图号、原因、修改动作、验收条件和应保留的优点。某项没有问题时写“未发现”并提供依据，不为返工编造缺陷。
-4. 保存 `生图/提示词{n+1}.md`，根据返工清单编辑或重新生成版本n+1，核对科学内容是否发生漂移。
-5. 保存新图、对照材料和检查结果，更新任务状态后继续下一轮。
-
-```text
-版本1 → 返工1 → 版本2 → 返工2 → 版本3 → 返工3 → 版本4
-      → 返工4 → 版本5 → 返工5 → 版本6
-```
-
-**完成条件：** 六个真实图像版本、五份有证据的返工记录与对应提示词齐全，版本之间的改变可解释。版本6后结束生图循环，遗留问题进入软件重绘清单。
-
-## 7. 软件精细重绘，形成最终版本
-
-读取 [重绘与交付](references/reconstruction.md)，逐元素分析版本6，选择当前环境能实际使用、最适合这张图的代码工具或绘图软件，形成 `重绘/重绘方案.md`。
-
-以版本6为布局和视觉参考，在真实数据与科学关系约束下尽量1∶1重建。保存文字、图元、线条、数据层或场景的可编辑源文件；记录对版本6的纠错及理由。最终内容来自代码、软件图元及可溯源的真实科研素材，AI 草图只作视觉参考。
-
-导出后重新打开渲染结果，在预定论文尺寸下检查文字、图例、颜色、对齐、裁切和科学内容。比较版本6与终稿的布局和语义，并从保存的源文件重新导出一次以验证可复现性。优先提供适合该图的矢量格式和 PNG 预览，不对纯栅格科研图像作虚假的矢量承诺。
-
-**完成条件：** 重绘源文件可编辑；导出可复现；科学内容核对通过；终稿不含 AI 生成图层；所有必要的外部科研素材注明来源。
-
-## 8. 交付与后续修改
-
-提交终稿预览、投稿格式、可编辑源文件/代码、复现说明、图注和插入位置，附简短 `交付说明.md`。说明实际完成情况以及影响使用的剩余问题。
-
-若用户要求直接插图，在可编辑论文中完成插入、图注和交叉引用，检查相邻版面；只有 PDF 时提供具体位置与可用插入材料，说明尚未修改正文。详见场景参考。
-
-交付后等待用户反馈。同一图在原 `imgN/` 内追加 `用户修订1/` 等记录与终稿新版本，保留之前的成果。局部修改沿用已验证的参考和风格；研究主张、图类型或数据发生实质变化时，回到受影响的最早阶段。
+Wait for user feedback. Save later revisions within the same `imgN/`; edit the reconstructed source for local changes. Return to an earlier stage only when the scientific content or figure purpose changes.

@@ -1,4 +1,4 @@
-"""检查技能入口、元数据、内部文件链接与品牌资源可用性。"""
+"""Check the skill entry point, metadata, local links and brand assets."""
 
 import re
 import unittest
@@ -33,7 +33,7 @@ class PackageTests(unittest.TestCase):
 
     def test_internal_links_resolve(self):
         paths = [path for path in ROOT.rglob("*.md")
-                 if not any(part in {".git", "tmp", ".venv"} for part in path.parts)]
+                 if not any(part in {".git", "tmp", ".venv", "dist"} for part in path.parts)]
         for path in paths:
             content = path.read_text(encoding="utf-8")
             targets = re.findall(r"\]\(([^)]+)\)", content)

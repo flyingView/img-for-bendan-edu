@@ -1,21 +1,17 @@
 ---
-name: 使用反馈与改进建议
-about: 反馈科研绘图流程中的具体问题
+name: Workflow feedback
+about: Report a concrete problem or improvement
 title: ""
 labels: ""
 assignees: ""
 ---
 
-## 使用场景
+## Host and workflow stage
 
-指定单图 / 论文配图 / 其他
+## Selected paper count and refinement rounds
 
-## 发生在哪一步
+## Actual result and expected result
 
-## 实际表现
+## Reproduction material
 
-## 期待结果
-
-## 可复现材料
-
-请仅提供可以公开的提示词、日志或图片。
+Include only prompts, logs or figures that you may share publicly.

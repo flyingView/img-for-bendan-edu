@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""为一张新图创建独立任务目录。仅使用 Python 标准库。"""
+"""Create a numbered figure workspace using only the Python standard library."""
 
 from __future__ import annotations
 
@@ -12,7 +12,8 @@ from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
-TASK_FOLDER = "重型绘图任务"
+DEFAULTS = json.loads((SKILL_ROOT / "assets/defaults.json").read_text(encoding="utf-8"))
+TASK_FOLDER = DEFAULTS["task_root"]
 REFERENCE_FIELDS = [
     "paper_id", "title", "authors", "year", "published_date", "version_date",
     "priority", "selection_evidence", "doi_or_id", "landing_url", "pdf_url",
@@ -21,21 +22,31 @@ REFERENCE_FIELDS = [
 ]
 
 
-def create_task(project: Path, mode: str = "single") -> Path:
+def create_task(
+    project: Path,
+    mode: str = "single",
+    paper_count: int | None = None,
+    refinement_rounds: int | None = None,
+) -> Path:
+    papers = DEFAULTS["paper_count"] if paper_count is None else paper_count
+    rounds = DEFAULTS["refinement_rounds"] if refinement_rounds is None else refinement_rounds
+    for name, value, minimum in (("paper_count", papers, 1), ("refinement_rounds", rounds, 0)):
+        if type(value) is not int or value < minimum:
+            raise ValueError(f"{name} must be an integer >= {minimum}.")
     project = project.expanduser().resolve(strict=True)
     if not project.is_dir():
-        raise ValueError("论文项目路径必须是已经存在的目录。")
+        raise ValueError("The paper project must be an existing directory.")
     if mode not in {"single", "manuscript"}:
-        raise ValueError("mode 必须是 single 或 manuscript。")
-    template = (SKILL_ROOT / "assets/templates/原始需求和内容理解规划.md").read_text(
+        raise ValueError("mode must be single or manuscript.")
+    template = (SKILL_ROOT / "assets/templates/requirements.md").read_text(
         encoding="utf-8"
     )
     root = project / TASK_FOLDER
     root.mkdir(exist_ok=True)
     if root.resolve().parent != project:
-        raise ValueError("重型绘图任务目录不能通过链接指向项目外。")
+        raise ValueError("The task root must resolve inside the paper project.")
 
-    # mkdir 的独占创建使两个同时开始的新任务不会占用同一个编号。
+    # Exclusive creation keeps concurrent tasks from claiming the same number.
     while True:
         indices = [
             int(match.group(1))
@@ -49,38 +60,45 @@ def create_task(project: Path, mode: str = "single") -> Path:
         except FileExistsError:
             continue
 
-    for directory in ("参考文献", "生图", "对照", "数据", "重绘", "最终交付"):
+    for directory in ("references", "generation", "comparisons", "data", "redraw", "final"):
         (target / directory).mkdir()
 
     state = {
-        "schema_version": 1,
+        "schema_version": 2,
         "figure_id": target.name,
         "manuscript_figure_number": None,
         "mode": mode,
+        "paper_count": papers,
+        "refinement_rounds": rounds,
+        "expected_versions": rounds + 1,
+        "parameter_sources": {
+            "paper_count": "default" if paper_count is None else "argument",
+            "refinement_rounds": "default" if refinement_rounds is None else "argument",
+        },
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "stage": "requirements",
         "reference_papers_verified": 0,
         "completed_versions": [],
         "completed_reviews": [],
-        "next_action": "阅读论文与用户要求，填写原始需求和内容理解规划.md。",
+        "next_action": "Read the manuscript and user request; complete requirements.md.",
         "blockers": [],
     }
-    (target / "任务状态.json").write_text(
+    (target / "task.json").write_text(
         json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-    (target / "原始需求和内容理解规划.md").write_text(template, encoding="utf-8")
-    with (target / "参考文献/文献清单.csv").open(
+    (target / "requirements.md").write_text(template, encoding="utf-8")
+    with (target / "references/papers.csv").open(
         "x", encoding="utf-8-sig", newline=""
     ) as stream:
         csv.writer(stream).writerow(REFERENCE_FIELDS)
 
     if mode == "manuscript":
         try:
-            with (root / "论文配图总规划.md").open("x", encoding="utf-8") as stream:
+            with (root / "manuscript-plan.md").open("x", encoding="utf-8") as stream:
                 stream.write(
-                    "# 论文配图总规划\n\n"
-                    "状态：待通读论文并填写。\n\n"
-                    "| 任务编号 | 位置/源码锚点 | 核心信息 | 现有缺口 | 图类型与数据来源 | 新增/替换 | 优先级 |\n"
+                    "# Manuscript figure plan\n\n"
+                    "Status: read the manuscript and complete this plan.\n\n"
+                    "| Task ID | Insertion anchor | Main message | Visual need | Type and data source | Add/replace | Priority |\n"
                     "| --- | --- | --- | --- | --- | --- | --- |\n"
                 )
         except FileExistsError:
@@ -90,13 +108,15 @@ def create_task(project: Path, mode: str = "single") -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--project", required=True, type=Path, help="已存在的论文项目目录")
+    parser.add_argument("--project", required=True, type=Path, help="Existing paper project directory")
     parser.add_argument("--mode", choices=("single", "manuscript"), default="single")
+    parser.add_argument("--papers", type=int, help="Reference paper count (default: 20)")
+    parser.add_argument("--rounds", type=int, help="Refinement rounds (default: 5)")
     args = parser.parse_args()
     try:
-        target = create_task(args.project, args.mode)
+        target = create_task(args.project, args.mode, args.papers, args.rounds)
     except (OSError, ValueError) as error:
-        parser.exit(1, f"初始化失败：{error}\n")
+        parser.exit(1, f"Initialization failed: {error}\n")
     print(target)
 
 

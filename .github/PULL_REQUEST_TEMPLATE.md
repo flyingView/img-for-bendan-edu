@@ -1,8 +1,6 @@
-## 解决的问题
+## Problem and resulting behavior
 
-## 修改后行为
+## Verification
 
-## 验证
-
-- 执行的检查及结果：
-- 相关示例或截图（适用时）：
+- Checks run and results:
+- Example or screenshot, if relevant:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""渲染论文 PDF 页面，或按归一化坐标裁取完整图区域并记录来源。"""
+"""Render PDF pages or crop complete figures with normalized coordinates and source records."""
 
 from __future__ import annotations
 
@@ -14,16 +14,16 @@ from pathlib import Path
 
 
 def parse_pages(value: str, count: int) -> list[int]:
-    """将1起始页码/区间转成去重的1起始页码列表。"""
+    """Expand and deduplicate one-based page numbers and ranges."""
     result = []
     for piece in value.split(","):
         match = re.fullmatch(r"\s*([1-9][0-9]*)(?:-([1-9][0-9]*))?\s*", piece)
         if not match:
-            raise ValueError("页码格式示例：1,3-5；页码从1开始。")
+            raise ValueError("Use one-based page numbers, for example: 1,3-5.")
         first = int(match.group(1))
         last = int(match.group(2) or first)
         if first > last or last > count:
-            raise ValueError(f"页码必须处于1—{count}，且区间不能倒序。")
+            raise ValueError(f"Pages must be within 1-{count}, with ascending ranges.")
         result.extend(range(first, last + 1))
     return list(dict.fromkeys(result))
 
@@ -32,12 +32,12 @@ def parse_box(value: str) -> tuple[float, float, float, float]:
     try:
         box = tuple(float(part) for part in value.split(","))
     except ValueError as error:
-        raise ValueError("裁切框必须是四个数字。") from error
+        raise ValueError("The crop box must contain four numbers.") from error
     if len(box) != 4 or not all(math.isfinite(n) for n in box):
-        raise ValueError("裁切框必须有四个有限数值。")
+        raise ValueError("The crop box must contain four finite values.")
     left, top, right, bottom = box
     if not (0 <= left < right <= 1 and 0 <= top < bottom <= 1):
-        raise ValueError("裁切框需满足 0≤左<右≤1 且 0≤上<下≤1。")
+        raise ValueError("The box requires 0 <= left < right <= 1 and 0 <= top < bottom <= 1.")
     return box
 
 
@@ -45,13 +45,13 @@ def load_pdf(path: Path):
     try:
         import pymupdf
     except ImportError as error:
-        raise RuntimeError("缺少 PyMuPDF，请安装 requirements.txt。") from error
+        raise RuntimeError("PyMuPDF is missing; install requirements.txt.") from error
     if path.suffix.lower() != ".pdf":
-        raise ValueError("输入文件扩展名必须为 .pdf。")
+        raise ValueError("The input file must have a .pdf extension.")
     document = pymupdf.open(path)
     if not document.is_pdf or document.needs_pass or document.page_count == 0:
         document.close()
-        raise ValueError("需要可打开、无需密码且包含页面的 PDF。")
+        raise ValueError("The PDF must open without a password and contain at least one page.")
     return document
 
 
@@ -60,12 +60,12 @@ def render_page(page, dpi: int):
         import pymupdf
         from PIL import Image
     except ImportError as error:
-        raise RuntimeError("缺少 PyMuPDF 或 Pillow，请安装 requirements.txt。") from error
+        raise RuntimeError("PyMuPDF or Pillow is missing; install requirements.txt.") from error
     if not 72 <= dpi <= 600:
-        raise ValueError("dpi 需在72—600之间。")
+        raise ValueError("dpi must be within 72-600.")
     pixels = page.rect.width * page.rect.height * (dpi / 72) ** 2
     if pixels > 40_000_000:
-        raise ValueError("页面渲染超过4000万像素，请降低 dpi。")
+        raise ValueError("Rendering exceeds 40 million pixels; reduce dpi.")
     pixmap = page.get_pixmap(dpi=dpi, colorspace=pymupdf.csRGB, alpha=False)
     return Image.frombytes("RGB", (pixmap.width, pixmap.height), pixmap.samples)
 
@@ -73,7 +73,7 @@ def render_page(page, dpi: int):
 def ensure_new(paths: list[Path]) -> None:
     existing = [str(path) for path in paths if path.exists()]
     if existing:
-        raise FileExistsError("输出已存在，请使用新的输出目录或图号：" + ", ".join(existing))
+        raise FileExistsError("Output exists; use a new directory or figure ID: " + ", ".join(existing))
 
 
 def save_png(image, path: Path, dpi: int) -> None:
@@ -95,7 +95,7 @@ def execute(args: argparse.Namespace) -> list[Path]:
     source = args.pdf.expanduser().resolve(strict=True)
     output = args.out.expanduser().resolve()
     if not 72 <= args.dpi <= 600:
-        raise ValueError("dpi 需在72—600之间。")
+        raise ValueError("dpi must be within 72-600.")
     with load_pdf(source) as document:
         if args.command == "render":
             pages = parse_pages(args.pages, document.page_count)
@@ -107,9 +107,9 @@ def execute(args: argparse.Namespace) -> list[Path]:
             return paths
 
         if not re.fullmatch(r"P[0-9]{2,}-Fig[0-9A-Za-z][0-9A-Za-z._-]*", args.figure_id):
-            raise ValueError("图号格式示例：P01-Fig2；只允许字母、数字、点、下划线和短横线。")
+            raise ValueError("Use a figure ID such as P01-Fig2; letters, digits, dots, underscores and hyphens only.")
         if not 1 <= args.page <= document.page_count:
-            raise ValueError(f"页码必须处于1—{document.page_count}。")
+            raise ValueError(f"The page must be within 1-{document.page_count}.")
         box = parse_box(args.box)
         image_path = output / f"{args.figure_id}.png"
         record_path = output / f"{args.figure_id}.json"
@@ -127,7 +127,7 @@ def execute(args: argparse.Namespace) -> list[Path]:
             "figure_id": args.figure_id,
             "page_1_based": args.page,
             "page_rotation": document[args.page - 1].rotation,
-            "coordinate_system": "已渲染页面的左上角原点，归一化坐标，包含页面旋转",
+            "coordinate_system": "Normalized coordinates from the rendered page's top-left, including page rotation",
             "box_normalized": list(box),
             "box_pixels": list(pixel_box),
             "dpi": args.dpi,
@@ -153,17 +153,17 @@ def main() -> None:
         command.add_argument("--out", required=True, type=Path)
         command.add_argument("--dpi", type=int, default=180)
         if name == "render":
-            command.add_argument("--pages", required=True, help="例如1,3-5")
+            command.add_argument("--pages", required=True, help="For example: 1,3-5")
         else:
             command.add_argument("--page", required=True, type=int)
-            command.add_argument("--box", required=True, help="归一化左,上,右,下")
+            command.add_argument("--box", required=True, help="Normalized left,top,right,bottom")
             command.add_argument("--figure-id", required=True)
     args = parser.parse_args()
     try:
         for path in execute(args):
             print(path)
     except Exception as error:
-        parser.exit(1, f"PDF处理失败：{error}\n")
+        parser.exit(1, f"PDF processing failed: {error}\n")
 
 
 if __name__ == "__main__":

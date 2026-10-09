@@ -1,59 +1,21 @@
-# 五轮对照评审
+# Compare, learn, refine
 
-## 评审必须实际看图
+Use the P and R recorded in `task.json`. Each review turns draft n into draft n+1; stop after R reviews. Look across all P reference papers, then enlarge a few directly relevant figures (up to three when P is small).
 
-每轮打开当前版本与参考图对照索引，覆盖全部20篇；针对重要差距至少选3张直接相关的原图放大比较。3张是重点深读集合，不替代20篇的总体回看。版本2起，同时检查上一轮返工项是否实现、是否引入新问题。
+Answer the author's five questions with visible evidence:
 
-比较统一到接近论文最终展示的物理尺寸或等效宽度，避免以大幅高清渲染的观感代替缩印后可读性。参考图本身存在不适合本图的做法时，明确不采用。
+- What makes this draft visually weaker than the examples?
+- What makes it unlike a paper figure in this field?
+- Which observable details create an AI-generated look?
+- What did the previous style study miss?
+- What exactly should change next?
 
-每轮先逐项核对 [图面表达要求](../SKILL.md#图面表达要求)，在返工文档中记录是否存在小字说明、边界/防御性文案、冗余图标、含糊图例或不协调配色，并给出具体修改动作。
+Use **location → reference figure → difference → action → acceptance condition**. Check scientific content first, then hierarchy, readability and visual consistency. Describe concrete artifacts, such as malformed labels or meaningless arrows.
 
-## 五个核心问题
+Check all six [figure expression rules](../SKILL.md#figure-expression-rules) each round. Revisit the previous review's changes, preserve what works, and write the next prompt with those invariants. New lessons go into `style-updates.md`.
 
-| 问题 | 需要回答的证据 |
-| --- | --- |
-| 为什么不如参考图好看？ | 比较层级、对齐、留白、色彩节奏与图元一致性，定位实际差距 |
-| 为什么不像本领域论文图？ | 比较视觉编码、标注、图例、面板和信息密度；依据领域参考而不是个人刻板印象 |
-| 为什么有明显“AI味”？ | 指出生成伪影、乱码、无语义箭头、重复装饰、任意渐变/光效、失真几何等具体问题 |
-| 漏学了什么？ | 回看未充分采用的参考特征与反例，解释遗漏为何影响理解 |
-| 下一版怎么改？ | 把差距转为可执行动作，写出能观察到的通过条件 |
+Spread attention over the available R rounds: structure, domain conventions, typography/color/legend, manuscript-size readability, and final reconstruction readiness. These are review topics, not five mandatory extra rounds. R=1 covers them together; R=0 proceeds from draft 1 to reconstruction.
 
-“AI味”描述视觉问题，不用于判断图片实际来源；3D、渐变或复杂结构也可能是领域中合理的科学表达，不能机械删除。
+If no defect is found, state that and its evidence; use a controlled visual alternative to test the design rather than fabricating criticism. Preserve regressions and failed attempts. A failed call or a renamed copy does not count as a new generated draft.
 
-## 每轮产物
-
-复制 [返工模板](../assets/templates/返工.md) 为图目录中的 `返工n.md`。每个问题必须具备：
-
-`图中位置 → 参考图ID → 差距证据 → 对阅读的影响 → 具体动作 → 通过条件`
-
-先纠正科学内容，再优化表达。分级可用：
-
-- P0：错误关系、伪造或改变数据、错误符号、无法理解的标签。
-- P1：阅读顺序不清、关键对象缺失、缩印难读、图例无法解释编码。
-- P2：对齐、间距、线宽和细节一致性。
-
-保留已成立的布局与编码，并将这些“不变量”写进下一轮提示词。每轮优先修复最影响理解的问题，而非为制造变化重做整张图。
-
-## 轮次侧重点
-
-侧重点帮助避免五份相同评语，所有轮次仍检查科学准确性与五个核心问题。
-
-| 返工 | 主要观察 | 产出 |
-| --- | --- | --- |
-| 1 | 核心信息、总体构图、读图顺序 | 版本2 |
-| 2 | 领域惯例、对象语义、箭头与图例 | 版本3 |
-| 3 | 字体、色彩、线宽、对齐、信息密度 | 版本4 |
-| 4 | 缩印可读性、面板协调、残留生成伪影 | 版本5 |
-| 5 | 全局一致性、漏项、软件重绘可实现性 | 版本6 |
-
-每轮都记录新增或修正的风格认识到 `风格学习增量.md`，注明由哪些参考图和对照结果支持。不要覆盖最初总结；在重绘前将增量整理成最终参数表。
-
-## 停止与续作
-
-版本6产生后结束生图循环，进行一次核对，把未解决事项写入 `重绘/重绘方案.md`。这次核对不是第六轮生图返工。
-
-若某版退步，保留其原图和失败原因，下一版可结合较好旧版的结构改进；最终仍以版本6作为重绘视觉基准，并明确纠错。不得将旧图换名冒充新版本。
-
-若本轮没有发现缺陷，写明证据，以受控变化验证构图或可读性，选择有依据的结果；不得捏造低分来满足轮次。完整流程仍保留五次真实评审和六次实际生成结果。
-
-生图调用失败不计成功版本。保存错误和当前进度，恢复后从缺失版本继续。上下文中断时读取 `任务状态.json` 和最近返工文档，核对实际文件，避免从版本1重跑或漏掉轮次。
+After draft R+1, do a final inspection and move unresolved issues into `redraw/plan.md`. This inspection does not start another generation round. Resume from actual artifacts, retaining selected settings and completed work.

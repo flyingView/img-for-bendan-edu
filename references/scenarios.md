@@ -1,48 +1,16 @@
-# 场景与需求
+# Two entry modes
 
-## 选择入口
-
-| 项目 | 指定单图 | 论文配图 |
+| | Specific figure | Manuscript illustration |
 | --- | --- | --- |
-| 典型请求 | “根据提示词画方法总览图” | “通读论文，在合适位置配图” |
-| 内容主线 | 用户给定图意 + 论文核对 | 全文论证结构 + 信息表达缺口 |
-| 额外产物 | 无需全篇配图清单 | `重型绘图任务/论文配图总规划.md` |
-| 位置决定 | 核对指定位置，必要时解释调整 | 根据论证位置给出章节、段落和插入理由 |
-| 图数 | 用户指定的一张或明确图组 | 用户指定范围优先；否则先完成最有价值的1—3张，说明选择依据 |
-| 论文修改 | 请求交付图片时提交图片与插入建议 | “插入/配图”请求包含可编辑论文内的实际插入 |
+| Starting point | User's figure brief plus manuscript evidence | Manuscript argument and places where a visual helps |
+| Initial output | One figure's requirements | `manuscript-plan.md` at the task root |
+| Position | Check the requested anchor | Choose section/paragraph anchors and explain their value |
+| Figure count | Follow the request | Follow the requested scope; otherwise start with the most useful 1-3 figures |
 
-两种入口共用同一套20篇学习与五轮返工流程。论文配图中的每一张最终选定图片都要有独立 `imgN/` 与完整过程。
+Ask for P and R once at intake. For multiple figures, use those settings per figure unless the user specifies exceptions. Reuse downloaded papers where relevant, while retaining each figure's own selection and learning record.
 
-## 指定单图
+For a specific figure, preserve the user's original wording and reconcile it with the manuscript. For whole-paper work, map **claim → evidence → reader difficulty → useful figure**. Add a figure when it clarifies something the current prose or tables do not. Keep the whole-paper plan to a table of position, message, source, figure type and priority, then proceed within the requested scope.
 
-1. 原样记录用户提示词，提取“必须出现”“必须保持”和目标用途。
-2. 在论文中找到对应证据，识别提示词与稿件可能的冲突。
-3. 写一句图的核心信息，再分解对象、关系和面板。
-4. 若提示词要求论文并未支持的提升幅度、因果结论或实验结果，指出缺口并请求必要材料；可先推进无争议部分。
-5. 用户给定的风格参考作为额外约束，纳入比较；仍需按标准流程完成20篇论文学习。
+When insertion is requested, use a reversible edit of the existing manuscript. Preserve its figure numbering and formatting, add the caption and cross-reference, then inspect the rendered page. For PDF-only input, supply the final figure, caption and exact placement anchor; request editable source only when actual manuscript editing is needed.
 
-## 论文配图
-
-先建立“主张 → 当前证据 → 阅读困难 → 是否值得画图”的映射。优先考虑：方法总览、关键机制、实验设计、核心结果、重要对照。只有图比现有文字或表格更容易传达关系时才新增。
-
-总规划至少包含：
-
-| 任务编号 | 位置/源码锚点 | 核心信息 | 现有内容与缺口 | 图类型与数据来源 | 新增/替换 | 执行优先级 |
-| --- | --- | --- | --- | --- | --- | --- |
-
-先展示简短规划，随后在已授权范围内推进，不为每张图设置重复确认。对没有数据支持的定量图，标记所需数据并先完成其他有材料的图；不能生成结果填空。
-
-图数较多时，按论文价值顺序逐图完成。参考库可以复用已核验论文，但每图仍保留本地副本和来源索引，解释这些图例为何适用于本图；20个有效研究工作和逐图学习记录均需满足。不同图类型应补充对应参考。
-
-## 插入正文
-
-- LaTeX：保存插入前版本或可审查 diff，加入图环境、caption、label 和相邻正文引用，用项目现有方式编译并检查页面。
-- Word：在副本或可回退版本中插图，保留原有样式和编号体系，检查图注、分页和引用。
-- Markdown：使用项目内相对资源路径，检查渲染后的宽度与图注。
-- 只有 PDF：不能把叠加图片当作完成源稿编辑。交付图件、完整图注、页码/段落锚点和对应插入代码，并准确说明状态。
-
-有明确源文件时不另建无关稿件；有多个候选且会影响科学内容时询问用户。整篇稿件的编辑遵从项目既有格式。
-
-## 共用需求模板
-
-使用 [原始需求模板](../assets/templates/原始需求和内容理解规划.md)。标清用户要求、论文证据与设计判断，减少在后续返工中擅自改变任务目标。
+Respond in the user's language. Figure labels follow the manuscript language or the user's explicit choice; English skill instructions do not force English labels.
